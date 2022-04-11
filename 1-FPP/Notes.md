@@ -7,6 +7,8 @@
 * `assert` like `require` but throws AssertionError (check conditions)
 * end marker
 * select operator is dot notation
+* Type Alias `type FunSet = Int => Boolean`
+* Trait can be used as multiple inheritance (using linear approach) `With`
 ## Evaluation Strategy
 * Subtitude Model
 * Call by name (Lazy Evaluation)
@@ -55,3 +57,8 @@
 * `+ -`
 * `* / %`
 * other symbols
+
+## MUnit
+* `test(string.ignore` ignore test
+* `assertEquals` show diff `assert` does not throw `Fail Exception`
+* use `trait` to saved common data in each test (Fail create instance wont run the tests)
