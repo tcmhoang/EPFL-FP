@@ -9,6 +9,8 @@
 * select operator is dot notation
 * Type Alias `type FunSet = Int => Boolean`
 * Trait can be used as multiple inheritance (using linear approach) `With`
+* Missing implementation `???`
+* `abstract` modifier
 ## Evaluation Strategy
 * Subtitude Model
 * Call by name (Lazy Evaluation)
@@ -62,3 +64,37 @@
 * `test(string.ignore` ignore test
 * `assertEquals` show diff `assert` does not throw `Fail Exception`
 * use `trait` to saved common data in each test (Fail create instance wont run the tests)
+
+## Persistence data structure
+* Create new data structure based on the old ones.
+* Base class of a class is a super class
+* `override` modifier is needed to override the base class.
+
+## Object Definition (Singleton)
+* Create 1 instance instead using class definition
+
+## Companion Object
+* Object can have the same name (Scala has two global namespaces: types, value)
+* If a class and object in the same src file have the same name
+* Same as static class definition in java
+
+## Program 
+* Like java object with main method `def main(args: Array[String]) : Unit = body`
+* Or use `@main` annotation (more convenient)
+
+## Package
+* src path same as pkg name (not enforce)
+* refer by fully qualified name
+* import 
+ * `{obj1, obj2, ...}` import 2 or more classes
+ * `name._` import all (wildcard import)
+* auto import from scala, java.lang and scala.Predef (Singleton)
+
+## Trait
+* Can have parameters , contain fields and concrete methods
+* can be inherited from many traits
+
+## Class hierarchy
+* Super: Any -> AnyVal/ AnyRef -> Nothing (no value)
+* Any contains `==, !=, equals, hashCode, toString`
+* throw Exception return Nothing
