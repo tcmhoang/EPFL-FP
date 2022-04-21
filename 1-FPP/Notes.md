@@ -12,6 +12,10 @@
 * Missing implementation `???`
 * `abstract` modifier
 * `lazy val` lazy init variable
+* package can have mutiple lines in declaration (Which is continue from the previous lines)
+* val in parameter to define immutable field
+* Function is object
+* Anon function is itself a block instantiate a function
 ## Evaluation Strategy
 * Subtitude Model
 * Call by name (Lazy Evaluation)
@@ -99,3 +103,12 @@
 * Super: Any -> AnyVal/ AnyRef -> Nothing (no value)
 * Any contains `==, !=, equals, hashCode, toString`
 * throw Exception return Nothing
+
+## Type Parameter
+* Add to definition of class or function and trait using bra ckets `trait TraitName[T]`
+* Type Parameter is complier only, before evaluating program  (type erasure) 
+
+## Polymorphism
+* Function can applied to many types (Subtype)
+* Class can have instances of different types (Subtype, generics)
+
