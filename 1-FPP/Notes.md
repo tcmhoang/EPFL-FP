@@ -11,6 +11,7 @@
 * Trait can be used as multiple inheritance (using linear approach) `With`
 * Missing implementation `???`
 * `abstract` modifier
+* `lazy val` lazy init variable
 ## Evaluation Strategy
 * Subtitude Model
 * Call by name (Lazy Evaluation)
