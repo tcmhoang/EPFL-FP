@@ -23,7 +23,8 @@
 * Call by value (Eager Evaluation)
 * Class Subtitude by class params and this
 * Methos extension Subtitude for extension params
-*
+* Check and Cast `isInstanceOf` `asInstanceOf`
+
 ## Tail recursive >< Linear recursion
 * Only call to current function is optimized 
 * If u want to call another function, use `@railrec` anotation (only check)
@@ -112,3 +113,15 @@
 * Function can applied to many types (Subtype)
 * Class can have instances of different types (Subtype, generics)
 
+## Decomposition
+* Double Dispatch
+* Pattern Matching
+    * use `case` class (Create accessors for members)
+    * keyword `match` to get access to members follow the sequence of cases `pat => expr`
+        * if no pattern matched => `MatchError` will throw
+## Pattern 
+* Constructor
+* Variable (param) - camelCase
+* Wildcard `_`
+* Constant - Uppercase
+* Type test
