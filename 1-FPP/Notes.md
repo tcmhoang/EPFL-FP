@@ -16,6 +16,8 @@
 * val in parameter to define immutable field
 * Function is object
 * Anon function is itself a block instantiate a function
+* Right Associativity 
+* blob `...`
 ## Evaluation Strategy
 * Subtitude Model
 * Call by name (Lazy Evaluation)
@@ -125,3 +127,29 @@
 * Wildcard `_`
 * Constant - Uppercase
 * Type test
+*  | or
+
+## List
+* `::` cons operator
+* pattern `List(p1, ... , pn)` == `p1 :: ... :: pn :: Nil`
+
+## Enums
+* ADT = Algebraic data types - Pure data definition
+* syntactic sugar for `case class`
+* case with out parameter can be defined sequently by separating with comma 
+* ordinal and values methods
+* can define common methods 
+* cases pass parameter using enum must use extend keyword
+* parameterlized cases do not exist in value property
+
+## SubType Interact w/ Generics
+Bounded parameter
+* `<:` upper bound - child
+* `>;` lower bound - parent
+* can mixed but lower bound came first
+
+Covarience - subtyping relationship holds with the type parameter
+* `[+T]` covarient
+* `[-T] contravarient 
+* `[T]` nonvarient
+* arg is contra and return is cova
