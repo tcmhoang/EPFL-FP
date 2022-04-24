@@ -134,6 +134,11 @@
 * `::` cons operator
 * pattern `List(p1, ... , pn)` == `p1 :: ... :: pn :: Nil`
 * concat 2 list `:::`
+* `:+` append
+
+## Pair
+* Tuple Constructor `()`
+* accessors `._1, ._2`
 
 ## Enums
 * ADT = Algebraic data types - Pure data definition
