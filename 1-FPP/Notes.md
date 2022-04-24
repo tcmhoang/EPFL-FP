@@ -18,6 +18,7 @@
 * Anon function is itself a block instantiate a function
 * Right Associativity 
 * blob `...`
+
 ## Evaluation Strategy
 * Subtitude Model
 * Call by name (Lazy Evaluation)
@@ -132,6 +133,7 @@
 ## List
 * `::` cons operator
 * pattern `List(p1, ... , pn)` == `p1 :: ... :: pn :: Nil`
+* concat 2 list `:::`
 
 ## Enums
 * ADT = Algebraic data types - Pure data definition
