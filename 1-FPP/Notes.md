@@ -18,6 +18,7 @@
 * Anon function is itself a block instantiate a function
 * Right Associativity 
 * blob `...`
+* `_` represents new parameter from left to right
 
 ## Evaluation Strategy
 * Subtitude Model
@@ -160,3 +161,43 @@ Covarience - subtyping relationship holds with the type parameter
 * `[-T] contravarient 
 * `[T]` nonvarient
 * arg is contra and return is cova
+
+## List
+Methods
+* length
+* last >< head
+* init >< tail
+* take: sublist
+* drop : rest sublist
+* xs: index
+* splitAt : Pair return 
+
+* map
+* filter
+    * filterNot
+    * partition (true,false)
+    * takeWhile
+    * dropWhile
+    * span (takeWhile, dropWhile)
+
+Create new lists
+* `++` concat | `:::`
+* reverse
+* update(n,x)
+
+Finding elements
+* indexOf
+* contains
+
+* reduceLeft
+* foldLeft / right
+*
+
+## Tuple
+* type`Tuplen` < 22 or `TupleXXL` => store in array
+
+## Induction
+* Referential Transparency (Freely apply reduction steps as equality to some part of the term) cuz no side effects
+* Structure Induction
+    * hold base case
+    * hold x::xs
