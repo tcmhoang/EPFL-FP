@@ -108,6 +108,7 @@
 * Super: Any -> AnyVal/ AnyRef -> Nothing (no value)
 * Any contains `==, !=, equals, hashCode, toString`
 * throw Exception return Nothing
+* `this` add another constructor
 
 ## Type Parameter
 * Add to definition of class or function and trait using bra ckets `trait TraitName[T]`
@@ -158,7 +159,7 @@ Bounded parameter
 
 Covarience - subtyping relationship holds with the type parameter
 * `[+T]` covarient
-* `[-T] contravarient 
+* `[-T]` contravarient 
 * `[T]` nonvarient
 * arg is contra and return is cova
 
@@ -201,3 +202,66 @@ Finding elements
 * Structure Induction
     * hold base case
     * hold x::xs
+
+## Collections
+### Vector
+* Tree w/ 2 arrays in each level (max 5) (1 aray == 32 elem)
+* No cons `::` use `+:` or `:+`
+* :> `Seq` like List
+
+## Array / String
+* Support same operations as Seg
+* implicit upcast to Seq when needed
+
+## Ranges
+* Seq of Int only (evently space)
+* operator `to` (ex) `until` (in) and `by` (step)
+* map -> rang -> vector
+
+## Seq
+* exists
+* forall
+* zip => pair => if length not equal -> truncate
+* unzip
+* flatMap 
+* flatten
+* sum
+* product
+* max
+* min
+* toSet
+* toMap
+* for each expression `for (s yield e` 
+    * s is sequence of generator and filter seperated `;`
+    * e is expression return by an iteration
+    * generator `p <- e` p pattern, e expression (collection value)
+    * filter `if f` where f is predicate
+    * last generator is faster than the first
+    * collection start also the return type
+
+## Set 
+* almost same methods like seq
+
+## Map
+* `k -> v` pair
+* Maps are function - partial application
+* `withDefaultValue` -> function
+* `.get` -> option
+
+
+Update
+* `+` add
+* `++` addAll
+* small size 4 -> copy whole object 
+* > 4 scheme like vector
+
+Relational Calculus
+* sortWith
+* sorted (use > <)
+* groupBy discriminator function
+
+## Option
+* 1-0
+
+## Variable length parameter List \ Repeated parameter
+* `TYPE *` -> seq
