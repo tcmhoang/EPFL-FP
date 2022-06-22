@@ -186,6 +186,10 @@ Create new lists
 * reverse
 * update(n,x)
 
+
+Create lazy lists
+* `#::`
+
 Finding elements
 * indexOf
 * contains
@@ -238,6 +242,7 @@ Finding elements
     * filter `if f` where f is predicate
     * last generator is faster than the first
     * collection start also the return type
+    * return type is the first collection working with
 
 ## Set 
 * almost same methods like seq
