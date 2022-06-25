@@ -36,3 +36,12 @@ As long as client implemented `flatMap`, `map` and `withFilter` we can use for e
 * analogous to Option but catch exception
 * case : Success | Failure
 * `Try(exprs)`
+
+# [Scalacheck](https://github.com/typelevel/scalacheck/blob/main/doc/UserGuide.md)
+* Check properties with random args `extends Properties with ClassOrTraitWantToCheck`
+* init object using `lazy val obj : Gen[Obj] = for ... yield`
+    * using `arbitrary` `oneOf` `const`
+    *  Then give it to scalacheck using `given Arbitrary[TYPE] = Arbitrary(cons)`
+* Check properties using `property("desc") = forAll{(given) => true|| false}`
+* Can label these complex check properties using `:|` or `|:`
+*
