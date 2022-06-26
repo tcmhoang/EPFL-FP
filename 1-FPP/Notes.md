@@ -22,7 +22,7 @@
 
 ## Evaluation Strategy
 * Subtitude Model
-* Call by name (Lazy Evaluation)
+* Call by name (Lazy Evaluation but recompute)
     * Syntax ` :=> TYPE`
 * Call by value (Eager Evaluation)
 * Class Subtitude by class params and this

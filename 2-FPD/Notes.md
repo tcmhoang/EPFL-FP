@@ -44,4 +44,19 @@ As long as client implemented `flatMap`, `map` and `withFilter` we can use for e
     *  Then give it to scalacheck using `given Arbitrary[TYPE] = Arbitrary(cons)`
 * Check properties using `property("desc") = forAll{(given) => true|| false}`
 * Can label these complex check properties using `:|` or `|:`
-*
+
+# Structure Induction on Trees
+* Prove for each nodes and leaves of the trees
+
+# Lazy List
+* `LazyList.cons` `LazyList.empty`
+* has `apply` method
+* convert to LazyList using `.to` method
+* `LazyList.range`
+* `#::`
+
+# Lazy Evaluation
+* Lazy evaluation
+* by-name evaluation
+* strict evaluation
+
