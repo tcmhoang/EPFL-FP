@@ -1,3 +1,5 @@
+# Notes
+* `filterNot`
 # Translation of For
 
 * `withFilter` is a variant of `filter` that does not produce imtermediate list.
@@ -54,9 +56,35 @@ As long as client implemented `flatMap`, `map` and `withFilter` we can use for e
 * convert to LazyList using `.to` method
 * `LazyList.range`
 * `#::`
+* To pattern check use `LazyList()`
 
 # Lazy Evaluation
 * Lazy evaluation
 * by-name evaluation
 * strict evaluation
+
+# Ordering
+* Has abstract method `compare  `
+* And other methods like `lt`
+
+# Implicit Parameter
+* `(implicit varName:Type)`
+* Will infer value based on type
+* Can have only one implicit parameter list, and it must be the last parameter list given
+* Caller can be left out but can explicitly pass
+
+## Candidate for Implicit Parameter
+* Have Type T
+* are marked as implicit
+* are visible at the point of function call, or define in companion object with associated with T
+* If single (most specific) -> taken as an argument or else throw error
+* define `implicit val Name : TYPE =`
+    * `Any val`, `lazy val`,`def` or obj def can be marked as implicit
+    * implicit function can take type params and implicit params
+    ```scala
+    implicit def orderingPair[A, B](implicit 
+         orderingA: Ordering[A],
+         orderingB: Ordering[B]
+    ): Ordering[(A, B)] 
+    ```
 
