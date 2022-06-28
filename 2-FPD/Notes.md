@@ -67,13 +67,14 @@ As long as client implemented `flatMap`, `map` and `withFilter` we can use for e
 * Has abstract method `compare  `
 * And other methods like `lt`
 
-# Implicit Parameter
+# Type Directed Programming
+## Implicit Parameter
 * `(implicit varName:Type)`
 * Will infer value based on type
 * Can have only one implicit parameter list, and it must be the last parameter list given
 * Caller can be left out but can explicitly pass
 
-## Candidate for Implicit Parameter
+### Candidate for Implicit Parameter
 * Have Type T
 * are marked as implicit
 * are visible at the point of function call, or define in companion object with associated with T
@@ -87,4 +88,27 @@ As long as client implemented `flatMap`, `map` and `withFilter` we can use for e
          orderingB: Ordering[B]
     ): Ordering[(A, B)] 
     ```
+### Searching
+* Query file T in lexical scope 
+* Continue find its companion object with associated
+* Search Type first and then companion object
+* If more type match 
+    * Check if a type has more fixed parts
+    * defined in a class or object which is a subclass defining B (sub class of B)
+    * if not error ambiguous report
 
+## Context Bounds
+
+```scala
+def printSorted[A: Ordering](as: List[A]): Unit = {
+  println(sort(as))
+}
+```
+
+is a syntactic sugar for
+```scala
+def printSorted[A](as: List[A])(implicit ev1: Ordering[A]): Unit = {
+  println(sort(as))
+}
+```
+`implcitly` to querying inplicit value
