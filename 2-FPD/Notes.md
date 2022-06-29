@@ -91,7 +91,7 @@ As long as client implemented `flatMap`, `map` and `withFilter` we can use for e
 ### Searching
 * Query file T in lexical scope 
 * Continue find its companion object with associated
-* Search Type first and then companion object
+* Search Type first and then companion object (implicit scope)
 * If more type match 
     * Check if a type has more fixed parts
     * defined in a class or object which is a subclass defining B (sub class of B)
@@ -111,4 +111,54 @@ def printSorted[A](as: List[A])(implicit ev1: Ordering[A]): Unit = {
   println(sort(as))
 }
 ```
+Genelize
+
+```scala 
+def f[A: U₁ ... : Uₙ](ps): R = ...
+def f[A](ps)(implicit ev₁: U₁[A], ..., evₙ: Uₙ[A]): R = ...
+```
+
+
 `implcitly` to querying inplicit value
+
+# Type Class
+* Is a class provide implicit value
+* another form of polymorphism 
+* resolve the implicit value at compile time
+* Can extends the feature of the data types by using companion object with associated implicit value => mo changing in the data type definition
+
+## Laws
+* To make other methods which depended by instance of type class can be rely on
+* `inverse` : The sign of the result comparing x & y must be inverse the sign of the result of comparing y & x
+* `transitive:` x > y & y > z => x > z
+* `consistent`: x == y => x sign z then y sign z 
+* author should think about such kind of laws and provide the caller the way to check the laws are satisfied
+
+## Implicit def takes implicit params
+* Search for implicit params until it terminates
+* It also can recursive search if it terminates, if the search results are the same type => return an error
+* Can be combine single type params into 1 collection but need to specify them one by one.
+* `sortBy` function in collection is a example
+
+## Implicit Conversion
+*   `import scala.language.implicitConversions` to write implicit def for implicitConversions
+* use it discriminately 
+* implicitConversions is a implicit definition take exactly one (non - implicit) parameter
+
+## Implicit class
+* to extends methods of a defined class
+* covert one type to the other type
+
+```scala
+  object Syntax {
+    import scala.language.implicitConversions
+    implicit class HasSeconds(n: Int) {
+      def seconds: Duration = Duration(n, TimeUnit.Second)
+    }
+  }
+```
+## Look for implicit conversion
+* Type does not conform the expected type
+* member is not accessible
+* if member did not applicable with the arg
+* Implicit conversions can improve the ergonomics of an API but should be used sparingly.
