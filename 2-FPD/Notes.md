@@ -162,3 +162,40 @@ def f[A](ps)(implicit ev₁: U₁[A], ..., evₙ: Uₙ[A]): R = ...
 * member is not accessible
 * if member did not applicable with the arg
 * Implicit conversions can improve the ergonomics of an API but should be used sparingly.
+
+# Contextual Abstraction
+* Function and classes can be written without knowing in detail the context in which they will be called or instantiated
+* Rather use global variable, monkey patching (change properties in object) or dependency injection - outside of the language and rely on bytecode rewriting -> harder to understand and debug
+* Function parameter 
+* Implicit parameter `( using name : Type)` deprecated in favor of `implicit`
+
+## Using clause
+* Can have multiple parameters/args in `using` clause
+* `using` clause can freely mixed with regular parameters ???
+* can have several using clause in a row (currying)
+* Using clause with most implicit arguments will have more priory
+* parameter in `using` clause can be anonymous. Can just write `using Type` if it did not mention and simply passes it as an implicit argument to further methods
+* Context bound noted above
+## Give instance
+* to provide the implicit parameter for `using` clause using `given Name_Opt : Type with`
+* if 2 type + anon given instance => Then complier generate same name
+* Can query type by using `summon[TYPE]`
+
+## Another notes for searching in implicit and outer scope (companion object)
+* Inherited types
+* Associated with any type argument in T
+* Outer object of inner class 
+
+## Import `Given` Instance
+* By name
+` import scala.math.Ordering.Int`
+* By type
+`import scala.math.Ordering.{given Ordering[Int]}`
+`import scala.math.Ordering.{given Ordering[?]}` all types
+* Bu wildcard
+`import scala.math.given` import only given instances
+## What does that means one type is more specific to another 
+* One type in lexical scope > One type is nested in another
+* One type is define in sub class or object which is a class define lesser type
+* One type is a generic instance of lesser type
+* type A is a subtype of type B
