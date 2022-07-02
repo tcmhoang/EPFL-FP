@@ -32,6 +32,7 @@ As long as client implemented `flatMap`, `map` and `withFilter` we can use for e
 # Monoids
 * Has empty and combine operations
 * Use to combine monad types
+* also have unit method
 
 # `Try` Type
 * create a try not use new cuz `apply` method in companion 
@@ -199,3 +200,36 @@ def f[A](ps)(implicit ev₁: U₁[A], ..., evₙ: Uₙ[A]): R = ...
 * One type is define in sub class or object which is a class define lesser type
 * One type is a generic instance of lesser type
 * type A is a subtype of type B
+
+# Type Class
+* is a generic class or trait that have companion objects implement it with different types
+* Provide another form of polymorphism or ad-hoc polymorphism
+* support retroactive extension (can add new feature without changing the class definition)
+* Conditional parameter `given name[TYPE]: (using clause) as WraperType wiith`
+    * An ordering for lists with elements of type T exists only if there is an ordering for T
+    * A class either inherits the traits or it does not. But normal class cannot inherit the traits dependsOn  its parameter type
+    * recursive implicit resolve => outer type is constructed first then its implicit parameters are filled in turn.
+* Can also have extension methods
+    * Type in arg are eligible to call 
+# Abstract Algebra with Type Classes
+* SemiGroup is a parent of Monoid
+* Has associated laws
+* Has associative operator `combine`
+* Abstract algebra with type classes form natural hierarchy
+
+# Contextual Abstraction - Context Passing
+* When passing context around the program make the type u passing is local and specific otherwise crosstalk will appear => ambiguous type
+* Passing context when the context is rarely changed otherwise the effects are neligible
+* if you use this must not try nested function
+* to shield from tampering use `opaque` 
+    * like alias but the other type alias will not recognize only in the scope it is defined
+    * everywhere the `opaque` type will be treated as abstract type => cannot init
+    * syntax `opaque type TYPE = STOCKTYPE`
+
+# Contextual Abstraction - Implicit Function Type
+* To remove named using parameter => define a function return implicit param
+* Lambda can have implicit param using `?=>` have type implicit function type
+    *  have arguments infer like methods
+    *  implicit function created on demand => synthesize the argument before the return type type-check
+* Implicit parameter in using clause trade type for term => abstract on the caller
+* Implicit function type trade types for parameters => abstract on the callee => second degree ctx Abstraction
