@@ -233,3 +233,18 @@ def f[A](ps)(implicit ev₁: U₁[A], ..., evₙ: Uₙ[A]): R = ...
     *  implicit function created on demand => synthesize the argument before the return type type-check
 * Implicit parameter in using clause trade type for term => abstract on the caller
 * Implicit function type trade types for parameters => abstract on the callee => second degree ctx Abstraction
+
+# Function and State
+* Functional is when we substitute any terms in any order => same results => Lambda calculus 
+* Stateful => When state change based on its history 
+* No state => referential transparency
+* Same in mutable state => operational equivalence => if no possible test can distinguish between => find the seq of avtions => replace => same
+* for-loop using `do` keyword
+* `while do` while loop in scala
+
+# Code Notes
+* PartialFunction != Function is that partial is for sub domain and can chain with orElse
+    * Call `lift` to call the function
+* If and else expression return unit => else only () => then can omit else clause
+    * Or we can omit in pattern match clause with empty body
+
