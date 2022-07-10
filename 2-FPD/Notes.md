@@ -242,9 +242,45 @@ def f[A](ps)(implicit ev₁: U₁[A], ..., evₙ: Uₙ[A]): R = ...
 * for-loop using `do` keyword
 * `while do` while loop in scala
 
+# Observer pattern 
+* Publisher / Add + Notify || Subscriber / handler 
+* Side effects, Harried
+
+# Functional Reactive Programming (Discrete Signal Changed events) => Event Propagating != Continuous => Sampling
+* Reacting the seq of events that happen in time => aggregate event seq into signal
+* Signal is a value changes over time => Function from time to value domain => instead of propagating update to mutable state => new signal in terms of the one before
+* Have to fundamental operators
+    * get the current value
+    * map one signal to another
+* Syntax
+```scala
+Signal {
+getCurentValue()
+}
+Signal(3) # always return 3
+```
+* `Signal.Var()` => signal the can be change (have a `update` method
+* Can apply function to signal => relationship between 2 signals 
+
+## Implementation Idea
+* Current val
+* expression define current
+* set of observers
+
+
 # Code Notes
 * PartialFunction != Function is that partial is for sub domain and can chain with orElse
     * Call `lift` to call the function
 * If and else expression return unit => else only () => then can omit else clause
     * Or we can omit in pattern match clause with empty body
-
+* To lazy init properties in class  => do init variable yet 
+```scala
+var name : TYPE = _
+methodToInitHere()
+* Can write `?` type to leave the type open
+```
+## Update Syntax
+`f(E1,.. , En) = E` => `f.update(E1m, ..., En, E)`
+it also work if n = 0
+`f() = E` => `f.update(E)`
+* Work with monad => not true => cyclic error
