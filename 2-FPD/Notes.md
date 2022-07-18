@@ -278,9 +278,12 @@ Signal(3) # always return 3
 var name : TYPE = _
 methodToInitHere()
 * Can write `?` type to leave the type open
+* function take list arg can use `tupled`  => tupled arity function 
 ```
 ## Update Syntax
 `f(E1,.. , En) = E` => `f.update(E1m, ..., En, E)`
 it also work if n = 0
 `f() = E` => `f.update(E)`
 * Work with monad => not true => cyclic error
+
+
