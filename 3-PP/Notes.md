@@ -41,3 +41,49 @@
 * `parallel` function
 * `Thread` in scala is `task` function 
     * `join` method => obtain value => block
+## Asymptotic Analysis
+* Work(e) : Number of steps if there no parallel execution
+* Depth-Span(e): Number of steps if we have unbounded hardware (Max)
+* D + W/Processors
+
+## Amdahl's Law (Performance Evaluation)
+* If some computation could not speed up => face up diminishing return (Plateau) 
+
+## Benchmarking 
+### Performance factor
+* Processor speed
+* Number of PO
+* Mem Access Latency and Throughput (affects contention)
+* Cache behavior (Eg: False sharing, associativity effects)
+* Run time Behavior (GC, JIT, thread scheduling)
+### Measurement Methodology
+* Multiple repetition
+* Statistic treatment - Mean - variance - Outliers 
+* Ensure steady state (wram-up)
+* prevent anomalies (GC, JIT, aggressive optimizations)
+### ScalaMeter
+* Performance regression testing ( Between run)
+* Benchmarking (Current run)
+#### Using
+* Add dep
+
+```
+libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.6"
+```
+* import `import org.scalameter._`
+* `measure` method measure time of an expression
+* `withWarmer(new Warmer.Default) measure {}` run onlu detect steady state
+* `config(key->value)` Eg `Key.exec.min/mapWarmupRuns` `Key.verbose` specify to config parameters
+* `withMeasure` methods use with different measure
+    * `Measurer.Default` default
+    * `IgnoreGC`
+    * `OutlierElemination`
+    * `MemoryFootprint`
+    * `GabageCollectionCycles`
+    * methods invocation , boxing count, etc.
+
+### JVM warm-up
+* First , Interpreted (Byte code => Soft compoment => Interpreter)
+* Some parts are complied to Machine code (Hot parts - Execute more often)
+* May apply additional dynamic optimizations (Hot part)
+* Read some steady state
