@@ -1,5 +1,7 @@
 # Notes
 * `:paste` mode in sbt to write multiple lines
+* `agglomeration` batch together many seq calls, and have a smaller number of parallel tasks
+*
 ## P vs C
 * P - Efficiency - How to divide - Underline hardware
 * C - Not at the same time - Modularity + Reponsiveness IO or understandability - When expression start - When and how them exchange info - How to manage to try share resources

@@ -16,7 +16,9 @@ object ScalaShop:
     setLayout(BorderLayout())
 
     val rightpanel = JPanel()
-    rightpanel.setBorder(BorderFactory.createEtchedBorder(border.EtchedBorder.LOWERED))
+    rightpanel.setBorder(
+      BorderFactory.createEtchedBorder(border.EtchedBorder.LOWERED)
+    )
     rightpanel.setLayout(BorderLayout())
     add(rightpanel, BorderLayout.EAST)
 
@@ -27,10 +29,12 @@ object ScalaShop:
     val filterLabel = JLabel("Filter")
     controls.add(filterLabel)
 
-    val filterCombo = JComboBox(Array(
-      "horizontal-box-blur",
-      "vertical-box-blur"
-    ))
+    val filterCombo = JComboBox(
+      Array(
+        "horizontal-box-blur",
+        "vertical-box-blur"
+      )
+    )
     controls.add(filterCombo)
 
     val radiusLabel = JLabel("Radius")
@@ -75,7 +79,8 @@ object ScalaShop:
     openMenuItem.addActionListener(new ActionListener {
       def actionPerformed(e: ActionEvent): Unit = {
         val fc = JFileChooser()
-        if fc.showOpenDialog(ScalaShopFrame.this) == JFileChooser.APPROVE_OPTION then {
+        if fc.showOpenDialog(ScalaShopFrame.this) == JFileChooser.APPROVE_OPTION
+        then {
           canvas.loadFile(fc.getSelectedFile.getPath)
         }
       }
@@ -95,7 +100,10 @@ object ScalaShop:
     val aboutMenuItem = JMenuItem("About")
     aboutMenuItem.addActionListener(new ActionListener {
       def actionPerformed(e: ActionEvent): Unit = {
-        JOptionPane.showMessageDialog(null, "ScalaShop, the ultimate image manipulation tool\nBrought to you by EPFL, 2015")
+        JOptionPane.showMessageDialog(
+          null,
+          "ScalaShop, the ultimate image manipulation tool\nBrought to you by EPFL, 2015"
+        )
       }
     })
     helpMenu.add(aboutMenuItem)
@@ -121,14 +129,12 @@ object ScalaShop:
     def getFilterName: String =
       filterCombo.getSelectedItem.asInstanceOf[String]
 
-
-  try
-    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+  try UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
   catch
-    case _: Exception => println("Cannot set look and feel, using the default one.")
+    case _: Exception =>
+      println("Cannot set look and feel, using the default one.")
 
   val frame = ScalaShopFrame()
 
   def main(args: Array[String]): Unit =
     frame.repaint()
-

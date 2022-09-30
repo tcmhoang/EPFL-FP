@@ -9,7 +9,7 @@ object HorizontalBoxBlurRunner:
     Key.exec.maxWarmupRuns := 10,
     Key.exec.benchRuns := 10,
     Key.verbose := false
-  ) withWarmer(Warmer.Default())
+  ) withWarmer (Warmer.Default())
 
   def main(args: Array[String]): Unit =
     val radius = 3
@@ -33,23 +33,28 @@ object HorizontalBoxBlurRunner:
 object HorizontalBoxBlur extends HorizontalBoxBlurInterface:
 
   /** Blurs the rows of the source image `src` into the destination image `dst`,
-   *  starting with `from` and ending with `end` (non-inclusive).
-   *
-   *  Within each row, `blur` traverses the pixels by going from left to right.
-   */
+    * starting with `from` and ending with `end` (non-inclusive).
+    *
+    * Within each row, `blur` traverses the pixels by going from left to right.
+    */
   def blur(src: Img, dst: Img, from: Int, end: Int, radius: Int): Unit =
-  // TODO implement this method using the `boxBlurKernel` method
-
-  ???
+    // TODO implement this method using the `boxBlurKernel` method
+    for
+      y <- from until end
+      x <- 0 until dst.width
+    do dst.update(x, y, boxBlurKernel(src, x, y, radius))
 
   /** Blurs the rows of the source image in parallel using `numTasks` tasks.
-   *
-   *  Parallelization is done by stripping the source image `src` into
-   *  `numTasks` separate strips, where each strip is composed of some number of
-   *  rows.
-   */
+    *
+    * Parallelization is done by stripping the source image `src` into
+    * `numTasks` separate strips, where each strip is composed of some number of
+    * rows.
+    */
   def parBlur(src: Img, dst: Img, numTasks: Int, radius: Int): Unit =
-  // TODO implement using the `task` construct and the `blur` method
-
-  ???
-
+    // TODO implement using the `task` construct and the `blur` method
+    val step = Math.max(dst.height / numTasks, 1)
+    val tasksPoints = 0 to dst.height by step
+    val tasksRange = tasksPoints zip tasksPoints.tail
+    tasksRange map ((s, e) =>
+      task { blur(src, dst, s, e, radius) }
+    ) foreach (_.join)

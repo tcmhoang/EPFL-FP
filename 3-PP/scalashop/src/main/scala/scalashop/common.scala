@@ -38,9 +38,42 @@ class Img(val width: Int, val height: Int, private val data: Array[RGBA]):
 
 /** Computes the blurred RGBA value of a single pixel of the input image. */
 def boxBlurKernel(src: Img, x: Int, y: Int, radius: Int): RGBA =
+  if radius == 0 then src(x, y)
+  else
+    val maxWidth = src.width - 1
+    val maxHeight = src.height - 1
+    val pixels = for
+      i <- clamp(x - radius, 0, maxWidth) to clamp(
+        x + radius,
+        0,
+        maxWidth
+      )
+      j <- clamp(y - radius, 0, maxHeight) to clamp(
+        y + radius,
+        0,
+        maxHeight
+      )
+    yield src(i, j)
 
-  // TODO implement using while loops
-  ???
+    val len = pixels.length
+
+    val totPixs = ((pixels map (p =>
+      (red(p), green(p), blue(p), alpha(p))
+    ) fold (0, 0, 0, 0))(
+      (
+          a: Tuple4[Int, Int, Int, Int],
+          b: Tuple4[Int, Int, Int, Int]
+      ) => ((a._1 + b._1), (a._2 + b._2), (a._3 + b._3), (a._4 + b._4))
+    ))
+
+    rgba(
+      r = totPixs._1 / len,
+      g = totPixs._2 / len,
+      b = totPixs._3 / len,
+      a = totPixs._4 / len
+    )
+
+// TODO implement using while loops
 
 val forkJoinPool = ForkJoinPool()
 
@@ -74,7 +107,12 @@ def task[T](body: => T): ForkJoinTask[T] =
 def parallel[A, B](taskA: => A, taskB: => B): (A, B) =
   scheduler.value.parallel(taskA, taskB)
 
-def parallel[A, B, C, D](taskA: => A, taskB: => B, taskC: => C, taskD: => D): (A, B, C, D) =
+def parallel[A, B, C, D](
+    taskA: => A,
+    taskB: => B,
+    taskC: => C,
+    taskD: => D
+): (A, B, C, D) =
   val ta = task { taskA }
   val tb = task { taskB }
   val tc = task { taskC }
