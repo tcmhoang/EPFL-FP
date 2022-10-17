@@ -1,7 +1,7 @@
 # Notes
 * `:paste` mode in sbt to write multiple lines
 * `agglomeration` batch together many seq calls, and have a smaller number of parallel tasks
-*
+* `scan` method in `List` as apply `fold` to all list prefixes
 ## P vs C
 * P - Efficiency - How to divide - Underline hardware
 * C - Not at the same time - Modularity + Reponsiveness IO or understandability - When expression start - When and how them exchange info - How to manage to try share resources
@@ -89,3 +89,24 @@ libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.6"
 * Some parts are complied to Machine code (Hot parts - Execute more often)
 * May apply additional dynamic optimizations (Hot part)
 * Read some steady state
+
+## Parallelism and Collections
+* Props of collections: Ability to split, combine
+* Props of operations: associativity and independence - side effects
+
+### Data Structures
+* arrays: imperative
+* trees: can be implemented functionally
+* locality
+* in order to use `fold` as a parallel operation => operation need to be associative | Order must be preserved.
+
+## Associativity
+* Order of operands must be reserved
+* Order of operation does not matter
+* May not be preserved by mapping
+* Sub expressions are associative => whole is
+* If Expression is commutative + can rotate the arguments => associativity
+
+## Commutativity
+* Order of operands does not matter
+* make func commutative is easy => pass-in func not
