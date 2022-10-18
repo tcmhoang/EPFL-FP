@@ -2,6 +2,8 @@
 * `:paste` mode in sbt to write multiple lines
 * `agglomeration` batch together many seq calls, and have a smaller number of parallel tasks
 * `scan` method in `List` as apply `fold` to all list prefixes
+* `isomorphism` :))
+* agnostic
 ## P vs C
 * P - Efficiency - How to divide - Underline hardware
 * C - Not at the same time - Modularity + Reponsiveness IO or understandability - When expression start - When and how them exchange info - How to manage to try share resources
@@ -110,3 +112,82 @@ libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.6"
 ## Commutativity
 * Order of operands does not matter
 * make func commutative is easy => pass-in func not
+
+## Scan - Prefix sum
+* unsweep + downsweep
+
+## Parallelism
+* Task => Distribute execution processes across computing nodes
+* Data => Distribute data across computation nodes (Computation details are expressed once)
+### Model
+* for loop - simplest `range`Type `.par` => convert to parallel range
+    * do not return any value => only side effects => correct only seperated mem loc or use some form of synchronization
+* fold with all types are the same
+* `aggregate` like foldLeft => Monoid => accessors
+* transformer like map, filter, flatMap, groupBy 
+## Workload
+* workload is a function that map input ele to amount work required to processes
+* Uniform w(i) = const => easy to parallel
+* Irregular w(i) = f(i) => depends on problem instance
+## Parallel Collections 
+* Scala collections can be convert to parallel collection using `par` method
+* to use `fold` as parallel operation => all types need to be the same
+### Hierarchy - Seq
+* Traversable[T] (foreach)
+* Iterable[T] (iterator)
+* Seq[T] (an order seq) - index
+* Set[T] (no duplicate)
+* Map[K,V] - map of keys associated with values (no dup keys)
+### Parallel Hierarchy
+Traits
+* ParIterable[T]
+* ParSeq[T]
+* ParSet[T]
+* ParMap[K,V]
+### Agnostic parallel (may or may not be parallel)
+* GenIterable[T]
+* GenSeq[T]
+* GenSet[T]
+* GenMap[T]
+
+### Parallel Collections
+* ParArray[T] | Array , ArrayBuffer
+* ParRange | Range
+* ParVector[T] | Vector (List or Seq)
+* im/mutable.ParHashSet[T] | im/mutable.HashSet
+* im/mutable.ParHashMap[T] | im/mutable.HashMap
+* ParTrieMap[K,V] | TrieMap (thread safe with atomic snapshots)
+#### Rules
+* Avoid mutations to the same memory locations without proper synchronization  
+* Or avoid side effects
+* Never modify a parallel collection on which parallel operations are in processes
+* TrieMap are the exception to above rules
+* ConcurrentSkipListSet
+*  
+## Monoid (F+Neutral ele)
+* Associativity
+* Neutral element => f => identity function
+* Commutativity not matter => when invoke on sequences
+
+## Data Parallel Abstraction
+* Iterator
+    * `next` + `hasNext` 
+    * next can only be call if hasNext return true
+    * after hasNext return false => will always return false
+* Splitter
+    * Counterpart of Iterator use for parallel
+    * `split: Seq[Splitter[A]]`
+    * `remaining : Int` => estimate on the number of remaining elements
+    * after calling `split` the splitter is left in an undefined state ( method like `next`, `hasNext` or `split` cannot be called on splitter)
+    * the result splitters traverse disjoint subsets of original splitter (should return at least 2)
+    * split must be O(logn) or better => invoke multiple times during execution
+* Builder
+    * creating new collection
+    * `+=` add element to collection
+    * `result` return collection contained all the elements which previously added
+    * call `result` leave builder undefined state => after that cannot use any more
+* Combiner
+    * parallel version of the builder 
+    * like Builder
+    * `combine` => return new combiner that contains elements of input combiners => both input combiners that are left in an undefined state and can no longer be used
+    * Must be efficient like Splitter

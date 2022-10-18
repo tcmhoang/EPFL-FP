@@ -33,6 +33,7 @@ As long as client implemented `flatMap`, `map` and `withFilter` we can use for e
 * Has empty and combine operations
 * Use to combine monad types
 * also have unit method
+* same as monad
 
 # `Try` Type
 * create a try not use new cuz `apply` method in companion 
