@@ -20,11 +20,16 @@ class KMeans extends KMeansInterface:
         val y = ((i + 5) % k) * 1.0 / k + randy.nextDouble() * 0.5
         val z = ((i + 7) % k) * 1.0 / k + randz.nextDouble() * 0.5
         Point(x, y, z)
-      }).to(mutable.ArrayBuffer).par
+      })
+      .to(mutable.ArrayBuffer)
+      .par
 
   def initializeMeans(k: Int, points: ParSeq[Point]): ParSeq[Point] =
     val rand = Random(7)
-    (0 until k).map(_ => points(rand.nextInt(points.length))).to(mutable.ArrayBuffer).par
+    (0 until k)
+      .map(_ => points(rand.nextInt(points.length)))
+      .to(mutable.ArrayBuffer)
+      .par
 
   def findClosest(p: Point, means: IterableOnce[Point]): Point =
     val it = means.iterator
@@ -39,41 +44,60 @@ class KMeans extends KMeansInterface:
         closest = point
     closest
 
-  def classify(points: ParSeq[Point], means: ParSeq[Point]): ParMap[Point, ParSeq[Point]] =
-    ???
+  def classify(
+      points: ParSeq[Point],
+      means: ParSeq[Point]
+  ): ParMap[Point, ParSeq[Point]] =
+    val tmp = points groupBy (p => findClosest(p, means))
+    val kSet = tmp.keySet
+    (means filter (kSet(_).unary_!) map ((_, ParSeq())) to ParMap) ++ tmp
 
-  def findAverage(oldMean: Point, points: ParSeq[Point]): Point = if points.isEmpty then oldMean else
-    var x = 0.0
-    var y = 0.0
-    var z = 0.0
-    points.seq.foreach { p =>
-      x += p.x
-      y += p.y
-      z += p.z
-    }
-    Point(x / points.length, y / points.length, z / points.length)
+  def findAverage(oldMean: Point, points: ParSeq[Point]): Point =
+    if points.isEmpty then oldMean
+    else
+      var x = 0.0
+      var y = 0.0
+      var z = 0.0
+      points.seq.foreach { p =>
+        x += p.x
+        y += p.y
+        z += p.z
+      }
+      Point(x / points.length, y / points.length, z / points.length)
 
-  def update(classified: ParMap[Point, ParSeq[Point]], oldMeans: ParSeq[Point]): ParSeq[Point] =
-    ???
+  def update(
+      classified: ParMap[Point, ParSeq[Point]],
+      oldMeans: ParSeq[Point]
+  ): ParSeq[Point] =
+    oldMeans map (p => findAverage(p, classified getOrElse (p, ParSeq())))
 
-  def converged(eta: Double, oldMeans: ParSeq[Point], newMeans: ParSeq[Point]): Boolean =
-    ???
+  def converged(
+      eta: Double,
+      oldMeans: ParSeq[Point],
+      newMeans: ParSeq[Point]
+  ): Boolean =
+    oldMeans zip newMeans forall ((o, n) => o.squareDistance(n) <= eta)
 
   @tailrec
-  final def kMeans(points: ParSeq[Point], means: ParSeq[Point], eta: Double): ParSeq[Point] =
-    if (???) kMeans(???, ???, ???) else ??? // your implementation need to be tail recursive
+  final def kMeans(
+      points: ParSeq[Point],
+      means: ParSeq[Point],
+      eta: Double
+  ): ParSeq[Point] =
+    val updated = update(classify(points, means), means)
+    if !converged(eta, means, updated) then kMeans(points, updated, eta)
+    else updated // your implementation need to be tail recursive
 
 /** Describes one point in three-dimensional space.
- *
- *  Note: deliberately uses reference equality.
- */
+  *
+  * Note: deliberately uses reference equality.
+  */
 class Point(val x: Double, val y: Double, val z: Double):
   private def square(v: Double): Double = v * v
   def squareDistance(that: Point): Double =
-    square(that.x - x)  + square(that.y - y) + square(that.z - z)
+    square(that.x - x) + square(that.y - y) + square(that.z - z)
   private def round(v: Double): Double = (v * 100).toInt / 100.0
   override def toString = s"(${round(x)}, ${round(y)}, ${round(z)})"
-
 
 object KMeansRunner:
 
@@ -82,7 +106,7 @@ object KMeansRunner:
     Key.exec.maxWarmupRuns := 40,
     Key.exec.benchRuns := 25,
     Key.verbose := false
-  ) withWarmer(Warmer.Default())
+  ) withWarmer (Warmer.Default())
 
   def main(args: Array[String]): Unit =
     val kMeans = KMeans()
