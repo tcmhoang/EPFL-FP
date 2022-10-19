@@ -191,3 +191,8 @@ Traits
     * like Builder
     * `combine` => return new combiner that contains elements of input combiners => both input combiners that are left in an undefined state and can no longer be used
     * Must be efficient like Splitter
+## BSP - bulk synchronous parallel algorithm
+ composed from a sequence of supersteps
+* parallel computation, in which processes independently perform local computations and produce some values
+* communication, in which processes exchange data
+* barrier synchronisation, during which processes wait until every process finishes
