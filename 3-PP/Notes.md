@@ -163,7 +163,6 @@ Traits
 * Never modify a parallel collection on which parallel operations are in processes
 * TrieMap are the exception to above rules
 * ConcurrentSkipListSet
-*  
 ## Monoid (F+Neutral ele)
 * Associativity
 * Neutral element => f => identity function
@@ -196,3 +195,13 @@ Traits
 * parallel computation, in which processes independently perform local computations and produce some values
 * communication, in which processes exchange data
 * barrier synchronisation, during which processes wait until every process finishes
+
+## Transformer Operation
+* Collection Operation
+* create another collection
+* can be implemented by builder - sequential or Combiner - parallel version
+## Parallel Two-Phase Construction
+* Has an intermediate data structure as its internal representation != result collection
+    * An efficient combine, += method (n/P)
+    * Can be converted to the resulting data structure in O(n/P) time
+
