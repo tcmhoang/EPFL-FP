@@ -186,19 +186,22 @@ class SectorMatrix(val boundaries: Boundaries, val sectorPrecision: Int)
   for i <- 0 until matrix.length do matrix(i) = ConcBuffer()
 
   def +=(b: Body): SectorMatrix =
-    ???
+    this(
+      ((b.x - boundaries.minX) / sectorSize).toInt max 0 min sectorPrecision - 1,
+      ((b.y - boundaries.minY) / sectorSize).toInt max 0 min sectorPrecision - 1
+    ) += b
     this
 
   def apply(x: Int, y: Int) = matrix(y * sectorPrecision + x)
 
   def combine(that: SectorMatrix): SectorMatrix =
-    ???
+    for i <- matrix.indices do matrix(i) = matrix(i).combine(that.matrix(i))
+    this
 
-  def toQuad(parallelism: Int): Quad =
+  def toQuad(parallelism: Int): Quad = // 4
     def BALANCING_FACTOR = 4
     def quad(x: Int, y: Int, span: Int, achievedParallelism: Int): Quad =
       if span == 1 then
-        val sectorSize = boundaries.size / sectorPrecision
         val centerX = boundaries.minX + x * sectorSize + sectorSize / 2
         val centerY = boundaries.minY + y * sectorSize + sectorSize / 2
         var emptyQuad: Quad = Empty(centerX, centerY, sectorSize)
