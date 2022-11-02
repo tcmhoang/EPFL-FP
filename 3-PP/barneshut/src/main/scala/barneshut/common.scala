@@ -75,10 +75,10 @@ case class Fork(
   def insert(b: Body): Fork =
     val (rx, ry) = (b.x - centerX, b.y - centerY)
     if rx > 0 then
-      if ry > 0 then Fork(ne = ne.insert(b), nw = nw, sw = sw, se = se)
-      else Fork(ne = ne, nw = nw, sw = sw, se = se.insert(b))
-    else if ry > 0 then Fork(ne = ne, nw = nw.insert(b), sw = sw, se = se)
-    else Fork(ne = ne, nw = nw, sw = sw.insert(b), se = se)
+      if ry > 0 then Fork(ne = ne, nw = nw, sw = sw, se = se.insert(b))
+      else Fork(ne = ne.insert(b), nw = nw, sw = sw, se = se)
+    else if ry > 0 then Fork(ne = ne, nw = nw, sw = sw.insert(b), se = se)
+    else Fork(ne = ne, nw = nw.insert(b), sw = sw, se = se)
 
 case class Leaf(
     centerX: Float,
@@ -98,12 +98,13 @@ case class Leaf(
   def insert(b: Body): Quad = if size > minimumSize then
     val hs = size / 2
     val qs = size / 4
-    Fork(
-      nw = Empty(centerX = centerX - qs, centerY = centerY - qs, size = hs),
-      ne = Empty(centerX = centerX + qs, centerY = centerY - qs, size = hs),
-      sw = Empty(centerX = centerX - qs, centerY = centerY + qs, size = hs),
-      se = Empty(centerX = centerX + qs, centerY = centerY + qs, size = hs)
-    )
+    ((b +: bodies) foldLeft
+      Fork(
+        nw = Empty(centerX = centerX - qs, centerY = centerY - qs, size = hs),
+        ne = Empty(centerX = centerX + qs, centerY = centerY - qs, size = hs),
+        sw = Empty(centerX = centerX - qs, centerY = centerY + qs, size = hs),
+        se = Empty(centerX = centerX + qs, centerY = centerY + qs, size = hs)
+      ))(_ insert _)
   else this.copy(bodies = b +: bodies)
 
 def minimumSize = 0.00001f

@@ -6,8 +6,9 @@
 - `isomorphism` :))
 - agnostic
 - ClassTag in reflection useful when instaniating at compile time weaker than TypeTags (type erasure - subtype)
-
+* TaskSupport
 * Pattern Binder `v@pattern` | Inflix Operator Pattern
+* Implement Combiner using bucket data structure
 
 ## P vs C
 
