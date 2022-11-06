@@ -78,3 +78,22 @@ Introduce 2 important concerns had to worry about
 * Communicate via cluster manager (Yarn - Mesos)
     * Managing Resources 
     * Scheduling
+
+## Reduction Operations
+* In RDDs Collection `foldLeft` and `foldRight` do not exist => `aggregate` => transform acc to new type => project down to more simpler data type
+* Enforcing ordering and try to run seq across cluster nodes is sometimes impossible and waste computation power => synchronize nodes => network => extremely costly
+
+## Pair RDDs - Distributed Key-Value Pairs
+* Do operation by keys
+* Group data by keys
+* To create => regular RDD => map to tuple2
+### Transformations
+* `groupByGKey`
+* `reduceByKey`
+* `mapValues`
+* `keys`
+* `join`
+* `leftOuterJoin`/ `rightOuterJoin`
+### Action
+* `countByKey`
+
