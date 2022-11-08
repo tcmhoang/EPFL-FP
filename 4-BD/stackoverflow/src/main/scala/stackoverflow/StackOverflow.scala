@@ -127,15 +127,14 @@ class StackOverflow extends StackOverflowInterface with Serializable:
   def groupedPostings(
       postings: RDD[Posting]
   ): RDD[(QID, Iterable[(Question, Answer)])] =
-    val tmp = postings.groupBy(_.postingType).cache()
-    val qs = tmp flatMap ({ case (1, ps) => ps.map(p => (p.id, p)) })
-    val as = tmp flatMap ({ case (2, ps) =>
-      ps.map(a =>
-        a.parentId match
-          case None    => throw IllegalArgumentException()
-          case Some(v) => (v, a)
-      )
-    })
+    val qs = postings filter (p => p.postingType == 1) map (p => (p.id, p))
+    val as = postings filter (p =>
+      p.postingType == 2 && p.parentId.isDefined
+    ) map (p =>
+      p.parentId match
+        case None    => throw IllegalArgumentException()
+        case Some(v) => (v, p)
+    )
     (qs join as).groupByKey
 
   /** Compute the maximum score for each posting */
@@ -341,13 +340,19 @@ class StackOverflow extends StackOverflowInterface with Serializable:
       val langLabel: String =
         langs(mostCommonLangIndex / langSpread)
 
-        // most common language in the cluster
+        // percent of the questions in the most common language
+      val clusterSize: Int = vs.size
+
+      // most common language in the cluster
       val langPercent: Double = langIndexWithCounts(
         mostCommonLangIndex
-      ) / langIndexWithCounts.values.reduce(_ + _)
-      // percent of the questions in the most common language
-      val clusterSize: Int = vs.size
-      val medianScore: Int = vs.toList.sortBy(_._2).apply(clusterSize / 2)._2
+      ) / clusterSize * 100d
+
+      val medianScore: Int =
+        val sorted = vs.map(_._2).toArray.sorted
+        val idx = sorted.size / 2.0
+        if sorted.size % 2 != 0 then sorted(idx.toInt)
+        else ((sorted(idx.toInt - 1) + sorted(idx.toInt)) / 2)
 
       (langLabel, langPercent, clusterSize, medianScore)
     }

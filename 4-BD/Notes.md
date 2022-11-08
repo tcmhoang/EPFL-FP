@@ -7,6 +7,7 @@ Different between the distributed vs parallel
 * Need to worry about network latency
 * Chart Important Latency Numbers
 * Apache Spark has distributed data parallel model called RDDs (Resilient Distributed Datasets)
+* `@transient lazy val` prevent serialized
 
 
 Spark write in memory and limit networking transfer while hadoop is use disks for writing intermediate data => 100x faster (both has fail tolerance)
