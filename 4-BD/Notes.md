@@ -98,3 +98,78 @@ Introduce 2 important concerns had to worry about
 ### Action
 * `countByKey`
 
+## Shuffling
+* is moving data on the network
+* happens transparently as part of operations like `groupByKey` => sent to main machine with their responding keys 
+* shuffling is bad => do as little as possible cuz these order of magnitude
+* use reduceByKey first (much more example)
+    * reduce data on the mapper side first
+    * reduce the data that sent over the network during the shuffle
+
+## Partitioning
+* Data within RDD is split into many partitions (rigid) => move all around the cluster => do as fairly as possible
+* Never span in multiple machine
+* Each node contains at least 1 partition
+* Number can be configured
+* To Customize => only works on Pair RDDs => done based on key 
+* result should always be persisted
+Has 2 types:
+* Hash (default)
+* Range
+
+### Hash
+* Compute the partition p for every tuple in the pair RDD `p.hashCode % numberPartitions`
+### Range
+* Key has predefined ordering (Int, Char, String) => may be more efficient
+* Set of sorted ranges of keys
+
+### Customization
+* Explicitly call`partitionBy` on RDD and pass arguments (instance of `Partitioner`)
+    * `RangePartitioner(num, rddref)` => create instance => Pass to `partitionBy` method on rdd 
+* Keep track of transformation use in RDD (cuz some certain transformation uses certain type of partitioner)
+    * pass from parent rdd (the results of transformation is partitioned)
+    * Other transformation provide a new transformation 
+        * cogroup
+        * groupWith
+        * join/leftOuterJoin/rightOuterJoin
+        * groupByKey/reduceByKey/foldByKey/combineByKey
+        * partitionBy
+        * sort
+        * itersection
+        * distinct
+        * repartition
+        * coalesce
+        * mapValues/flatMapValues (parent)
+        * filter (parent)
+        * Other => del the partitioner
+
+### Optimizing w/ partitioner
+* Shuffle occurs when result RDD is depeneded on the same RDD or other
+* Type ShuffedRDD
+* or use `toDebugString` method
+* Avoid network => groupByKey => need to be partitioned first
+* Join => 2 RDD => partition using  the same partitioner => cache
+
+## Wide vs Narrow Dependencies
+* Lineages => Group of computations in RDD => DAG (Directed Acyclic Graph)
+    * Functional => Immutable
+    * Keep around function and RDD  => Can recompute => Fail tolerance
+
+* RDD => made up of partitions => atomic pieces dataset
+    * dependencies : models relationship betweem RDD ans its partitions with the RDDs was derived from
+    * functions => conpute
+    * metadata: partition scheme and data placement
+
+* RDD dependencies must encode when data move across the network
+* transformation cause shuffle => 2 kinds of dep
+
+ * Wide many parent => Slow => data need to be shuffle
+ * Narrow 1 parent => No shuffle necessary => Pipeline optimization is possible
+ * `dependencies` methods on RDD => sequence of dependencies objects => used in scheduler
+ * `toDebugString` visualization of DAG + info related to scheduling => Grouping call stages
+### Narrow dependencies object
+* OneToOneDependency
+* Prune/Range Dependency
+### Wide dependencies object
+* ShuffleDependecy
+
