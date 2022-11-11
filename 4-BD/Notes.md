@@ -173,3 +173,40 @@ Has 2 types:
 ### Wide dependencies object
 * ShuffleDependecy
 
+## Structure and Optimization
+* Structure information optimization (Spark SQL) - Schema => Use to lessen the unrelated fields => computation
+* => Make SQL optimization automatically possible
+
+## Spark SQL
+* Intermix SQL queries with Scala
+* Get optimize from SQL to Spark Jobs
+
+### Goals
+* Support relational processing in Spark
+* High performance from DB
+* Easy support new db src like semi-strut data and external db
+
+### Main APIs
+* SQL literal syntax
+* DataFrames
+    * are untyped => rules => schema => compiler does not have a lot of ability to type check
+    * transformation in data frame called untyped transformation 
+* DataSets
+
+* -Catalyst (Query Optimizer)
+* -Tungsen (Off-heap serializer) from GC
+
+### SparkSession
+* Counterpart of SparkContext `SparkSession.builder().appName('id).getOrCreate()`
+* import using`.config('option', 'value')`
+### DataFrames
+* From existing RDD (inferring schema or by explicit schema)
+    * Create schema automatically `toDF `
+        * Passing attributes' name as arguments otherwise numbers are auto assigned to attributes' name `_1, _2` (tuples)
+        * (case class) => attributes names automatically infer => no need to pass => reflection
+    * explicitly schema
+        * Create RDD of rows from original RDD
+        * Create schema separately which matches the structure of rows `StructType`
+        * Apply the schema to RDD of Rows by `createDataFrame`
+* Reading a specific data src from file (common-structured or semi)
+
