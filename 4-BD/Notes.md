@@ -200,13 +200,47 @@ Has 2 types:
 * Counterpart of SparkContext `SparkSession.builder().appName('id).getOrCreate()`
 * import using`.config('option', 'value')`
 ### DataFrames
-* From existing RDD (inferring schema or by explicit schema)
+* From existing RDD (inferring schema reflectively or by explicit schema)
     * Create schema automatically `toDF `
         * Passing attributes' name as arguments otherwise numbers are auto assigned to attributes' name `_1, _2` (tuples)
         * (case class) => attributes names automatically infer => no need to pass => reflection
     * explicitly schema
         * Create RDD of rows from original RDD
-        * Create schema separately which matches the structure of rows `StructType`
+        * Create schema separately which matches the structure of rows `StructType` and `StructField`
         * Apply the schema to RDD of Rows by `createDataFrame`
 * Reading a specific data src from file (common-structured or semi)
+    * Using `read` can read semi/structured data 
+        * json
+        * csv
+        * parquet
+        * JDBC
+### SQL Literals (Using SQL syntax on DataFrame)
+* Register DataFrame as SQL View first `createOrReplaceTempView`
+* Use `sql` method from SparkSession to passed SQL Query
+* sql statements are largely available in Hive Query Language 
 
+## DataFrames
+* Data Type like SQL Otherwise, have some complex ones like ArrayType, MapType or StructType (case class)
+* Requires alot of imports `org.scala.spark.sql.types._`
+* APIs
+    * select
+    * where
+    * limit
+    * orderBy
+    * groupBy => RelationalGroupDataset => APIs : count, sum, max, min, avg
+    * join
+* to show the data look like use `show` method => tabular form (20 eles)
+* to show schema `printSchema` in tree format
+### Transformations
+* select
+* agg
+    * import `org.apache.spark.sql.functions._`
+    * min, max, sum, mean, stddev, count, avg, first, last.
+* groupBy
+* join
+* filter, limit, orderBy, where, as sort, union and drop
+* Try to minimize query complexion in expression => Less optimization from Catalyst
+### Column
+* Uses `$` notation to refer to the name of column `$"age"`
+* Uses `apply` method on DataFrame
+* Uses sql query string
