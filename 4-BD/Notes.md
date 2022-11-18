@@ -244,3 +244,23 @@ Has 2 types:
 * Uses `$` notation to refer to the name of column `$"age"`
 * Uses `apply` method on DataFrame
 * Uses sql query string
+
+### Clean Data
+* `.drop()` drop tuple with any null or nan in any attributes => return new DataFrame without any of those
+* `.drop(columnName)` specify the tuple with the exact attribute to drop
+* `.drop(Array(col1, col2))`specify multiple attributes
+* `.fill(0)` replace all null or nan in specific type (this case numeric) to replace the value with the zero instead
+* `.fill(Map('attrName'-> defaultValue))`  replace specific attributes
+* `.replace(Array(attrId), Map(oldVal -> newVal))` replace specific value for specific attributes 
+
+### Actions
+* collect 
+* count
+* first|head
+* show
+* take
+
+### Joins
+* `df.join(df', $df.attr = $df'.attr)`
+    * pass 
+    *
