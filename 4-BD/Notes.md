@@ -247,7 +247,7 @@ Has 2 types:
 
 ### Clean Data
 * `.drop()` drop tuple with any null or nan in any attributes => return new DataFrame without any of those
-* `.drop(columnName)` specify the tuple with the exact attribute to drop
+* `.drop(columnName)` specify the tuple with the exact attribute to drop or use with `"all"` string
 * `.drop(Array(col1, col2))`specify multiple attributes
 * `.fill(0)` replace all null or nan in specific type (this case numeric) to replace the value with the zero instead
 * `.fill(Map('attrName'-> defaultValue))`  replace specific attributes
@@ -261,6 +261,53 @@ Has 2 types:
 * take
 
 ### Joins
+* `===` is specified as equal operator
 * `df.join(df', $df.attr = $df'.attr)`
-    * pass 
-    *
+    * pass on the third parameter if want to specific the join type (default : inner)
+	* inner
+	* outer
+	* left_outer
+	* right_oute
+	* leftsemi
+
+## Optimization
+* Catalyst run compile the relational operator => RDD => Has the structrure of the data (not blob)
+	* reordering operations
+	* reduce the data must read
+	* Prunning unneeded partition
+
+* Tungsen (data restricted)
+	* Highly specificied encoders (CPU bound task)
+	* Column based (locality)
+	* Off-heap (free from GC overhead, pause) (memory that manage itself)
+
+* Limitation 
+	* Untyped 
+	* Limited set of datatypes
+	* data not have structure
+
+## Datasets
+ * DF are DS[Row]
+ * Type distributed collection of data
+ * Unify DF and RDD API => Compromise
+ * Must have schema => semi|structured
+ 
+### Create 
+* Call `toDF` on data frame | RDD | Common scala file  (requies to import spark.implicits._)
+* Reading from file `.as[classClass]` => to provide schema
+
+* Type column like column but use `as[contained Type]` => Create new type column
+
+### Transformation 
+* type 
+* untype => lose type info
+
+
+Typed
+* map
+* flatMap
+* filter
+* distinct
+* groupByKey => KeyValueGroupedDataSet
+* coalesce
+* repartition 
