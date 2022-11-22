@@ -291,6 +291,8 @@ Has 2 types:
  * Type distributed collection of data
  * Unify DF and RDD API => Compromise
  * Must have schema => semi|structured
+ * Require encoder
+
  
 ### Create 
 * Call `toDF` on data frame | RDD | Common scala file  (requies to import spark.implicits._)
@@ -303,11 +305,53 @@ Has 2 types:
 * untype => lose type info
 
 
-Typed
+### Typed
 * map
 * flatMap
 * filter
 * distinct
-* groupByKey => KeyValueGroupedDataSet
+* groupByKey => `KeyValueGroupedDataSet` => Use `aggregation` operation to retrieve the dataset
+	* reduceGroups
+	* agg => go to the function that define in spark sql package
+	* mapGroup
+	* flatMapGroup
 * coalesce
 * repartition 
+
+### Aggregator
+* Like aggreate function saw on RDD
+* `[-IN,BUF,OUT]`
+* zero => initial elements
+* reduce => add elements in  running total
+* merge => merge intermediate results
+* finish => change tupe one more time before returning
+* need to overwrite `bufferEncoder` and `outputEncoder` to use
+
+### Encoder
+Create
+* Auto introduce it implicitly from SparkSession via `import spark.implicits._`
+* Or explicitly by select methods from `org.apache.spark.Encoder`
+	* primitive
+	* nullable primitives
+	* product /tuple
+
+### Actions 
+* collect
+* count
+* first
+* foreach
+* reduce
+* show
+* take
+
+## How to use
+* All DS or DF are abstraction built on top of RDDs => optimizer
+
+### RDD
+* Have unstructured data => cannot fit in DS or DF
+* Need to fine-tune the low-level details of RDD computations
+* Has complex data that tungsen cannot serialize or deserialize into
+### DF/DS
+* semi/structured data format
+* DF - rely on best performance of spark provide
+* DS - stil have good perf => Have type-safety, work with functional APIs
