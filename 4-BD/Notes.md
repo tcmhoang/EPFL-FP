@@ -355,3 +355,10 @@ Create
 * semi/structured data format
 * DF - rely on best performance of spark provide
 * DS - stil have good perf => Have type-safety, work with functional APIs
+
+
+## Coding
+* Map litteral
+`Map(k->v, j -> q)`
+* Use spark `spark.read.parquet` to query column agg func spark 3.1>
+
