@@ -83,10 +83,10 @@ object TimeUsage extends TimeUsageInterface:
   def classifiedColumns(
       columnNames: List[String]
   ): (List[Column], List[Column], List[Column]) =
-    val catss = List(
-      List("t01", "t03", "t11", "t1801", "t1803"),
-      List("t05", "t1805"),
-      List(
+    val catss = Map(
+      0 -> List("t01", "t03", "t11", "t1801", "t1803"),
+      1 -> List("t05", "t1805"),
+      2 -> List(
         "t02",
         "t04",
         "t06",
@@ -102,14 +102,16 @@ object TimeUsage extends TimeUsageInterface:
         "t18"
       )
     )
-    catss
-      .map((cats) =>
-        cats
-          .filter(cat => columnNames.contains(cat))
-          .map(cat => new Column(cat))
-      ) match
-      case l1 :: l2 :: l3 :: _ => (l1, l2, l3)
-      case _                   => throw new Error("Cannot happend")
+
+    val tmp = columnNames
+      .foldLeft(List[(Int, Column)]())((res, s) =>
+        catss.find((k, v) => v.exists(s.startsWith)) match
+          case Some(i: Int, _) => (i, new Column(s)) :: res
+          case None            => res
+      )
+      .groupMap((k, _) => k)((_, v) => v)
+
+    (tmp(0), tmp(1), tmp(2))
 
   /** @return
     *   a projection of the initial DataFrame such that all columns containing
@@ -161,18 +163,18 @@ object TimeUsage extends TimeUsageInterface:
     // Hint: you can use the `when` and `otherwise` Spark functions
     // Hint: don’t forget to give your columns the expected name with the `as` method
     val workingStatusProjection: Column =
-      col("telfs")
-        .as("ws")
-        .when($"ws" >= 1 && $"ws" < 3, 1)
+      when($"telfs" >= 1 && $"telfs" < 3, 1)
         .otherwise(0)
+        .as("ws")
 
-    val sexProjection: Column = col("telfs")
+    val sexProjection: Column = col("tesex")
       .as("sex")
-    val ageProjection: Column = col("teage")
-      .as("age")
-      .when($"age" < 22, "young")
-      .when($"age".between(22, 55), "active")
-      .otherwise("elder")
+
+    val ageProjection: Column =
+      when($"teage" < 22, "young")
+        .when($"teage".between(22, 55), "active")
+        .otherwise("elder")
+        .as("age")
 
     // Create columns that sum columns of the initial dataset
     // Hint: you want to create a complex column expression that sums other columns
@@ -287,28 +289,19 @@ object TimeUsage extends TimeUsageInterface:
   def timeUsageGroupedTyped(
       summed: Dataset[TimeUsageRow]
   ): Dataset[TimeUsageRow] =
-    // val avgPNeed = spark.read.parquet(_.primaryNeeds)
-    // val avgWNeed = spark.read.parquet(_.work)
-    // val avgONeed = spark.read.parquet(_.other)
-
-    import org.apache.spark.sql.expressions.scalalang.typed.avg
-
-    def rtt(d: Double) = (d * 10).round / 10d
-
     summed
       .groupByKey(r => (r.working, r.sex, r.age))
-      .agg(
-        // round(avg(avgPNeed("primaryNeeds")), 1),
-        // round(avg(avgONeed("work")), 1),
-        // round(avg(avgPNeed("other")), 1)
-        avg(_.primaryNeeds),
-        avg(_.work),
-        avg(_.other)
+      .mapGroups((k, v) =>
+        new TimeUsageRow(
+          k._1,
+          k._2,
+          k._3,
+          (math rint v.map(_.primaryNeeds).sum / v.length) * 10 / 10,
+          (math rint v.map(_.work).sum / v.length) * 10 / 10,
+          (math rint v.map(_.other).sum / v.length) * 10 / 10
+        )
       )
-      .map({ case ((w, s, a), p, wo, o) =>
-        TimeUsageRow(w, s, a, rtt(p), rtt(wo), rtt(o))
-      })
-      .orderBy('working, 'sex, 'age)
+      .orderBy("working", "sex", "age")
 
 /** Models a row of the summarized data set
   * @param working
