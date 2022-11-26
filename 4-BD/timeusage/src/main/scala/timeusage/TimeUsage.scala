@@ -41,7 +41,7 @@ object TimeUsage extends TimeUsageInterface:
     )
     val summaryDf =
       timeUsageSummary(primaryNeedsColumns, workColumns, otherColumns, initDf)
-    val finalDf = timeUsageGrouped(summaryDf)
+    val finalDf = timeUsageGroupedTyped(timeUsageSummaryTyped(summaryDf))
     finalDf.show()
 
   /** @return The read DataFrame along with its column names. */
@@ -163,12 +163,14 @@ object TimeUsage extends TimeUsageInterface:
     // Hint: you can use the `when` and `otherwise` Spark functions
     // Hint: don’t forget to give your columns the expected name with the `as` method
     val workingStatusProjection: Column =
-      when($"telfs" >= 1 && $"telfs" < 3, 1)
-        .otherwise(0)
+      when($"telfs" >= 1 && $"telfs" < 3, "working")
+        .otherwise("not working")
         .as("ws")
 
-    val sexProjection: Column = col("tesex")
-      .as("sex")
+    val sexProjection: Column =
+      when($"tesex" === 1, "male")
+        .otherwise("female")
+        .as("sex")
 
     val ageProjection: Column =
       when($"teage" < 22, "young")
@@ -223,8 +225,8 @@ object TimeUsage extends TimeUsageInterface:
     */
   def timeUsageGrouped(summed: DataFrame): DataFrame =
     summed groupBy ("ws", "sex", "age") agg (
-      round(avg("w_need") as ("w_need"), 1),
       round(avg("p_need") as ("p_need"), 1),
+      round(avg("w_need") as ("w_need"), 1),
       round(avg("o_need") as ("o_need"), 1)
     ) orderBy ("ws", "sex", "age")
 
@@ -265,8 +267,8 @@ object TimeUsage extends TimeUsageInterface:
   ): Dataset[TimeUsageRow] =
     timeUsageSummaryDf.map(r =>
       TimeUsageRow(
-        if r.getAs[Int]("ws") == 1 then "Working" else "Not Working",
-        if r.getAs[Int]("sex") == 1 then "Male" else "Female",
+        r.getAs[String]("ws"),
+        r.getAs[String]("sex"),
         r.getAs[String]("age"),
         r.getAs[Double]("p_need"),
         r.getAs[Double]("w_need"),
@@ -291,16 +293,19 @@ object TimeUsage extends TimeUsageInterface:
   ): Dataset[TimeUsageRow] =
     summed
       .groupByKey(r => (r.working, r.sex, r.age))
-      .mapGroups((k, v) =>
+      .mapGroups((k, v) => {
+        val (pneed, work, other, count) = v.foldLeft((.0, .0, .0, 0))((rs, r) =>
+          (rs._1 + r.primaryNeeds, rs._2 + r.work, rs._3 + r.other, rs._4 + 1)
+        )
         new TimeUsageRow(
           k._1,
           k._2,
           k._3,
-          (math rint v.map(_.primaryNeeds).sum / v.length) * 10 / 10,
-          (math rint v.map(_.work).sum / v.length) * 10 / 10,
-          (math rint v.map(_.other).sum / v.length) * 10 / 10
+          (math round pneed * 10 / count).toDouble / 10,
+          (math round work * 10 / count).toDouble / 10,
+          (math round other * 10 / count).toDouble / 10
         )
-      )
+      })
       .orderBy("working", "sex", "age")
 
 /** Models a row of the summarized data set
