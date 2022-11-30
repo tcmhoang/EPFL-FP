@@ -13,6 +13,7 @@ import scala.math.{Pi, acos, cos, pow, sin, abs}
 object VisualizationConstants {
   val earthRadius = 6371.0
   val minDistance = 1.0
+  val idwPower = 3 // shoud be < 2
 }
 
 object Visualization extends VisualizationInterface:
@@ -48,7 +49,11 @@ object Visualization extends VisualizationInterface:
         data: List[(Location, Temperature)],
         numAcc: Double,
         deAcc: Double
-    ): Temperature = ???
+    ): Temperature = data match
+      case (loc, temp) :: datap =>
+        val w = 1 / pow(dist(loc, location), VisualizationConstants.idwPower)
+        idw(datap, numAcc + w * temp, deAcc + w)
+      case Nil => numAcc / deAcc
 
     val minLoc =
       temperatures.toArray.par.minBy((tuple) => dist(location, tuple._1))
@@ -69,7 +74,32 @@ object Visualization extends VisualizationInterface:
       points: Iterable[(Temperature, Color)],
       value: Temperature
   ): Color =
-    ???
+    val sortedPoints = points.toList.sortBy(_._1)
+    val pointRanges = sortedPoints.zip(sortedPoints.tail)
+    def getColor(
+        pRange: List[((Temperature, Color), (Temperature, Color))]
+    ): Color =
+      pRange match
+        case ((lt, lc), (ht, hc)) :: prp =>
+          if value <= lt then lc
+          else if value == ht then hc
+          else if lt < value && value < ht then
+            val delta = ht - lt
+            val lwv = (ht - value) / delta
+            val hwv = (value - lt) / delta
+            (lc, hc) match
+              case (Color(lr, lg, lb), Color(hr, hg, hb)) =>
+                Color(
+                  (lr * lwv + hr * hwv).toInt,
+                  (lg * lwv + hg * hwv).toInt,
+                  (lb * lwv + hb * hwv).toInt
+                )
+          else
+            prp match
+              case Nil => hc
+              case _   => getColor(prp)
+        case _ => throw new Error("Cannot happend")
+    getColor(pointRanges)
 
   /** @param temperatures
     *   Known temperatures
