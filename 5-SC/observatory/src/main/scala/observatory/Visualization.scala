@@ -34,7 +34,8 @@ object Visualization extends VisualizationInterface:
 
     def dist(from: Location, to: Location): Double =
       if (from == to) then 0
-      else if from.lat * -1 == to.lat && (180 - from.lon) * -1 == to.lon then Pi
+      else if from.lat * -1 == to.lat && (180 - from.lon) * -1 == to.lon then
+        Pi * VisualizationConstants.earthRadius
       else
         val delta = acos(
           sin(toRad(from.lat)) * sin(toRad(to.lat)) + cos(
@@ -90,9 +91,9 @@ object Visualization extends VisualizationInterface:
             (lc, hc) match
               case (Color(lr, lg, lb), Color(hr, hg, hb)) =>
                 Color(
-                  (lr * lwv + hr * hwv).toInt,
-                  (lg * lwv + hg * hwv).toInt,
-                  (lb * lwv + hb * hwv).toInt
+                  math.rint(lr * lwv + hr * hwv).toInt,
+                  math.rint(lg * lwv + hg * hwv).toInt,
+                  math.rint(lb * lwv + hb * hwv).toInt
                 )
           else
             prp match
@@ -113,4 +114,21 @@ object Visualization extends VisualizationInterface:
       temperatures: Iterable[(Location, Temperature)],
       colors: Iterable[(Temperature, Color)]
   ): ImmutableImage =
-    ???
+    def coordToLocation(x: Int, y: Int) = Location(90 - y, x - 180)
+    def toPixel(c: Color, x: Int, y: Int) =
+      Pixel(x, y, c.red, c.green, c.blue, 255)
+
+    val buffer = new Array[Pixel](360 * 180)
+    for
+      y <- 0 until 180
+      x <- 0 until 360
+    do
+      buffer(y * 360 + x) = toPixel(
+        interpolateColor(
+          colors,
+          predictTemperature(temperatures, coordToLocation(x, y))
+        ),
+        x,
+        y
+      )
+    ImmutableImage.wrapPixels(360, 180, buffer, ImageMetadata.empty)
