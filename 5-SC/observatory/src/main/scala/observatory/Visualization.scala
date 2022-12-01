@@ -102,6 +102,31 @@ object Visualization extends VisualizationInterface:
         case _ => throw new Error("Cannot happend")
     getColor(pointRanges)
 
+  def auxVisualize(
+      temperatures: Iterable[(Location, Temperature)],
+      colors: Iterable[(Temperature, Color)],
+      size: (Int, Int),
+      fromCoordToLocation: (Int, Int) => Location,
+      alpha: Int = 255
+  ): ImmutableImage =
+    def toPixel(c: Color, x: Int, y: Int) =
+      Pixel(x, y, c.red, c.green, c.blue, alpha)
+
+    val buffer = new Array[Pixel](size._1 * size._2)
+    for
+      y <- 0 until size._2
+      x <- 0 until size._1
+    do
+      buffer(y * size._1 + x) = toPixel(
+        interpolateColor(
+          colors,
+          predictTemperature(temperatures, fromCoordToLocation(x, y))
+        ),
+        x,
+        y
+      )
+    ImmutableImage.wrapPixels(size._1, size._2, buffer, ImageMetadata.empty)
+
   /** @param temperatures
     *   Known temperatures
     * @param colors
@@ -114,21 +139,9 @@ object Visualization extends VisualizationInterface:
       temperatures: Iterable[(Location, Temperature)],
       colors: Iterable[(Temperature, Color)]
   ): ImmutableImage =
-    def coordToLocation(x: Int, y: Int) = Location(90 - y, x - 180)
-    def toPixel(c: Color, x: Int, y: Int) =
-      Pixel(x, y, c.red, c.green, c.blue, 255)
-
-    val buffer = new Array[Pixel](360 * 180)
-    for
-      y <- 0 until 180
-      x <- 0 until 360
-    do
-      buffer(y * 360 + x) = toPixel(
-        interpolateColor(
-          colors,
-          predictTemperature(temperatures, coordToLocation(x, y))
-        ),
-        x,
-        y
-      )
-    ImmutableImage.wrapPixels(360, 180, buffer, ImageMetadata.empty)
+    auxVisualize(
+      temperatures,
+      colors,
+      (360, 180),
+      (x: Int, y: Int) => Location(90 - y, x - 180)
+    )
