@@ -6,9 +6,15 @@ import com.sksamuel.scrimage.metadata.ImageMetadata
 import scala.collection.parallel.CollectionConverters.given
 import scala.math.{Pi, atan, pow, sinh}
 
+import scala.concurrent.{Await, Future, ExecutionContext}
+import scala.concurrent.duration._
+import java.util.concurrent.Executors
+
 /** 3rd milestone: interactive visualization
   */
 object Interaction extends InteractionInterface:
+  given ExecutionContext =
+    ExecutionContext.fromExecutor(Executors.newFixedThreadPool(10))
 
   /** @param tile
     *   Tile coordinates
@@ -66,9 +72,14 @@ object Interaction extends InteractionInterface:
       yearlyData: Iterable[(Year, Data)],
       generateImage: (Year, Tile, Data) => Unit
   ): Unit =
-    for
-      (year, d) <- yearlyData
-      zoom <- 0 to 3
-      y <- 0 until pow(2, zoom).toInt
-      x <- 0 until pow(2, zoom).toInt
-    do generateImage(year, Tile(x, y, zoom), d)
+    Await.result(
+      Future.sequence(
+        for
+          (year, d) <- yearlyData
+          zoom <- 0 to 3
+          y <- 0 until pow(2, zoom).toInt
+          x <- 0 until pow(2, zoom).toInt
+        yield Future(generateImage(year, Tile(x, y, zoom), d))
+      ),
+      15.minute
+    )

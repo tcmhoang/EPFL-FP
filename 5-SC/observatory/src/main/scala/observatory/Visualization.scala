@@ -7,6 +7,10 @@ import com.sksamuel.scrimage.implicits.given
 import scala.collection.parallel.CollectionConverters.given
 import scala.math.{Pi, acos, cos, pow, sin, abs}
 
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+
 /** 2nd milestone: basic visualization
   */
 
@@ -113,18 +117,22 @@ object Visualization extends VisualizationInterface:
       Pixel(x, y, c.red, c.green, c.blue, alpha)
 
     val buffer = new Array[Pixel](size._1 * size._2)
-    for
-      y <- 0 until size._2
-      x <- 0 until size._1
-    do
-      buffer(y * size._1 + x) = toPixel(
-        interpolateColor(
-          colors,
-          predictTemperature(temperatures, fromCoordToLocation(x, y))
-        ),
-        x,
-        y
-      )
+    Await.result(
+      Future.sequence(for
+        y <- 0 until size._2
+        x <- 0 until size._1
+      yield Future {
+        buffer(y * size._1 + x) = toPixel(
+          interpolateColor(
+            colors,
+            predictTemperature(temperatures, fromCoordToLocation(x, y))
+          ),
+          x,
+          y
+        )
+      }),
+      15.minute
+    )
     ImmutableImage.wrapPixels(size._1, size._2, buffer, ImageMetadata.empty)
 
   /** @param temperatures
