@@ -7,6 +7,10 @@ import collection.parallel.CollectionConverters.IterableIsParallelizable
 import scala.collection.generic.GenericParCompanion
 import scala.collection.parallel.immutable.ParIterable
 
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+
 /** 1st milestone: data extraction
   */
 object Extraction extends ExtractionInterface:
@@ -62,31 +66,35 @@ object Extraction extends ExtractionInterface:
           .map(_.get)
           .toMap[StationID, Location]
       )
-
-    IOOperations
-      .readData(temperaturesFile)
-      .map(lines =>
-        lines
-          .map(parseTemperature)
-          .map(maybeData =>
-            maybeData.flatMap(data =>
-              Try(
-                (
-                  data._2,
-                  maybeStations match
-                    case Some(ls) => ls(data._1)
-                    case None     => throw new IllegalArgumentException()
-                  ,
-                  data._3
+    Await.result(
+      Future {
+        IOOperations
+          .readData(temperaturesFile)
+          .map(lines =>
+            lines
+              .map(parseTemperature)
+              .map(maybeData =>
+                maybeData.flatMap(data =>
+                  Try(
+                    (
+                      data._2,
+                      maybeStations match
+                        case Some(ls) => ls(data._1)
+                        case None     => throw new IllegalArgumentException()
+                      ,
+                      data._3
+                    )
+                  ).toOption
                 )
-              ).toOption
-            )
+              )
+              .filter(_.isDefined)
+              .map(_.get)
           )
-          .filter(_.isDefined)
-          .map(_.get)
-      )
-      .getOrElse(ParIterable())
-      .seq
+          .getOrElse(ParIterable())
+          .seq
+      },
+      10.minutes
+    )
 
   /** @param records
     *   A sequence containing triplets (date, location, temperature)
