@@ -9,7 +9,11 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import com.sksamuel.scrimage.implicits
+
 object IOOperations {
+
+  // TODO: Implement wriing image to path
 
   def readData(path: String): Option[ParIterable[String]] =
     Await.result(
