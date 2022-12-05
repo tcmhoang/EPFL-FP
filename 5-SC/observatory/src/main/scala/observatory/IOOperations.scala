@@ -24,13 +24,13 @@ object IOOperations {
       Files.createDirectories(path.getParent)
     Try(RichImmutableImage(image).output(path)).toOption
 
-  def readData(path: String): Option[ParIterable[String]] =
+  def readData(path: String): Option[Iterator[String]] =
     Await.result(
       Future {
         Try(
           Source
             .fromInputStream(getClass.getResourceAsStream(path), "utf-8")
-        ).toOption.map(_.getLines().toArray.par),
+        ).toOption.map(_.getLines()),
       },
       15.minutes
     )

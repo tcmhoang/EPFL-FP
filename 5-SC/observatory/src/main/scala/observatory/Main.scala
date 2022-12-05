@@ -12,6 +12,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import java.nio.file.Path
 import java.nio.file.Paths
 
+import scala.collection.parallel.ForkJoinTaskSupport
+import java.util.concurrent.ForkJoinPool
+
 object Main extends App:
 
   if (isWin)
@@ -20,69 +23,76 @@ object Main extends App:
       System.getProperty("user.dir") + "\\winutils\\hadoop-3.3.1"
     )
 
-  lazy val normals =
-    Future { readData(Constants.normalYear until Constants.startYear) }
+  val fjts = new ForkJoinTaskSupport(new ForkJoinPool(8))
 
-  lazy val currents =
-    Future { readData(Constants.startYear to Constants.endYear) }
-
-  lazy val all =
-    Await.result(normals, 15.minutes) ++ Await.result(currents, 15.minutes)
+  val all =
+    readData(Constants.startYear to Constants.endYear, fjts)
 
   println("Start generating assets")
 
   Future {
-    val grid = Manipulation.makeGrid(all)
-    genPixels(grid, LayerName.Temperatures.id)
+    Interaction.generateTiles[Iterable[(Location, Temperature)]](
+      all,
+      (yr, tile, data) =>
+        IOOperations.writeTo(
+          Paths.get(
+            s"target/temperatures/$yr/${tile.zoom}",
+            s"${tile.x}-${tile.y}.png"
+          ),
+          Visualization2.visualizeGrid(
+            Manipulation.makeGrid(data),
+            Color.temp,
+            tile
+          )
+        )
+    )
   }
     .onComplete((_) => println("Generated Temperatures Images Successfully"))
 
   Future {
-    val grid =
-      Manipulation.deviation(
-        Await.result(currents, 10.minutes),
-        Manipulation.makeGrid(Await.result(normals, 10.minutes))
-      )
-    genPixels(grid, LayerName.Deviations.id)
-    println("Generated Deviation Images Successfully")
+    val normalsAndCurrents =
+      all.splitAt((Constants.startYear to Constants.normalYear).size)
+
+    val normals = Manipulation.average(normalsAndCurrents._1.map(_._2))
+
+    Interaction.generateTiles[Iterable[(Location, Temperature)]](
+      normalsAndCurrents._2,
+      (yr, tile, data) =>
+        IOOperations.writeTo(
+          Paths.get(
+            s"target/deviations/$yr/${tile.zoom}",
+            s"${tile.x}-${tile.y}.png"
+          ),
+          Visualization2.visualizeGrid(
+            Manipulation.deviation(data, normals),
+            Color.deviations,
+            tile
+          )
+        )
+    )
   }
     .onComplete((_) => println("Done"))
 
 end Main
 
-def genPixels(grid: GridLocation => Temperature, id: String) =
-  println("Generating Tiles")
-  for zlv <- 0 to 1
-  do
-    toGridTile(zlv)
-      .map(tile => (Visualization2.visualizeGrid(grid, Color.temp, tile), tile))
-      .map((image, tile) =>
-        IOOperations
-          .writeTo(
-            Paths.get(
-              s"${Constants.assetPath}/$id/$zlv",
-              s"${tile.x}-${tile.y}.png"
-            ),
-            image
-          )
-          .foreach((path) => print(path.toString()))
-      )
-
-def readData(years: Range): Iterable[(Location, Temperature)] =
+def readData(
+    years: Range,
+    fyts: ForkJoinTaskSupport
+): List[(Year, Iterable[(Location, Temperature)])] =
   println("Reading .... ")
-  years
+  val yp = years.par
+  yp.tasksupport = fyts
+  yp
     .map(yr =>
-      Extraction.locateTemperatures(
+      (
         yr,
-        "/stations.csv",
-        s"/$yr.csv"
+        Extraction.locationYearlyAverageRecords(
+          Extraction.locateTemperatures(
+            yr,
+            "/stations.csv",
+            s"/$yr.csv"
+          )
+        )
       )
     )
-    .map(Extraction.locationYearlyAverageRecords)
-    .foldLeft(List[(Location, Temperature)]())(_ ++ _)
-
-def toGridTile(zlv: Int): ParSeq[Tile] =
-  (for
-    y <- 0 to zlv
-    x <- 0 to zlv
-  yield Tile(x, y, zlv)).par
+    .toList

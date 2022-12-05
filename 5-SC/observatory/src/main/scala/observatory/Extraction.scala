@@ -10,6 +10,7 @@ import scala.collection.parallel.immutable.ParIterable
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.collection.Iterator.apply
 
 /** 1st milestone: data extraction
   */
@@ -28,7 +29,7 @@ object Extraction extends ExtractionInterface:
       case _ => None
 
   var stationCache: Option[
-    scala.collection.parallel.immutable.ParMap[
+    Map[
       observatory.StationID,
       observatory.Location
     ]
@@ -104,8 +105,8 @@ object Extraction extends ExtractionInterface:
               )
               .flatten
           )
-          .getOrElse(ParIterable())
-          .seq
+          .getOrElse(Iterator())
+          .to(Iterable)
       },
       15.minutes
     )
