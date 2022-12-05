@@ -15,6 +15,25 @@ import scala.concurrent.ExecutionContext.Implicits.global
   */
 object Extraction extends ExtractionInterface:
 
+  def toCelcius(ferenheit: Double): Temperature = (ferenheit - 32) * 5 / 9
+
+  def parseStation(raw: String): Option[(StationID, Location)] =
+    raw.split(",") match
+      case Array(_, _, "", _) | Array(_, _, _, "") =>
+        None
+      case Array(stn, wban, lat, lon) =>
+        Try(
+          (StationID(stn, wban), Location(lat.toDouble, lon.toDouble))
+        ).toOption
+      case _ => None
+
+  var stationCache: Option[
+    scala.collection.parallel.immutable.ParMap[
+      observatory.StationID,
+      observatory.Location
+    ]
+  ] = None
+
   /** @param year
     *   Year number
     * @param stationsFile
@@ -29,18 +48,6 @@ object Extraction extends ExtractionInterface:
       stationsFile: String,
       temperaturesFile: String
   ): Iterable[(LocalDate, Location, Temperature)] =
-    def toCelcius(ferenheit: Double): Temperature = (ferenheit - 32) * 5 / 9
-    def parseStation(raw: String): Option[(StationID, Location)] =
-      raw.split(",") match
-        case Array(_, _, "", _) =>
-          None
-        case Array(_, _, _, "") =>
-          None
-        case Array(stn, wban, lat, lon) =>
-          Try(
-            (StationID(stn, wban), Location(lat.toDouble, lon.toDouble))
-          ).toOption
-        case _ => None
 
     def parseTemperature(
         raw: String
@@ -57,15 +64,23 @@ object Extraction extends ExtractionInterface:
           ).toOption
         case _ => None
 
-    val maybeStations = IOOperations
-      .readData(stationsFile)
-      .map(lines =>
-        lines
-          .map(parseStation)
-          .filter(_.isDefined)
-          .map(_.get)
-          .toMap[StationID, Location]
-      )
+    println(s"Reading $year")
+
+    println(s"Reading Station File: ${stationCache == None}")
+
+    val maybeStations =
+      if stationCache == None then
+        stationCache = IOOperations
+          .readData(stationsFile)
+          .map(lines =>
+            lines
+              .map(parseStation)
+              .flatten
+              .toMap[StationID, Location]
+          )
+        stationCache
+      else stationCache
+
     Await.result(
       Future {
         IOOperations
@@ -87,13 +102,12 @@ object Extraction extends ExtractionInterface:
                   ).toOption
                 )
               )
-              .filter(_.isDefined)
-              .map(_.get)
+              .flatten
           )
           .getOrElse(ParIterable())
           .seq
       },
-      10.minutes
+      15.minutes
     )
 
   /** @param records

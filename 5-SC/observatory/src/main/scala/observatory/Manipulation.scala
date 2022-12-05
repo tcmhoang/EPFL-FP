@@ -15,6 +15,7 @@ object Manipulation extends ManipulationInterface:
   def makeGrid(
       temperatures: Iterable[(Location, Temperature)]
   ): GridLocation => Temperature =
+    println("Mk regular grid")
     val cache = collection.mutable.Map[GridLocation, Temperature]()
     (loc: GridLocation) =>
       cache.getOrElseUpdate(
@@ -49,5 +50,6 @@ object Manipulation extends ManipulationInterface:
       temperatures: Iterable[(Location, Temperature)],
       normals: GridLocation => Temperature
   ): GridLocation => Temperature =
+    println("Creating grid")
     val currentGrid = makeGrid(temperatures)
     (loc: GridLocation) => currentGrid(loc) - normals(loc)

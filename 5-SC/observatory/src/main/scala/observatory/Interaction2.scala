@@ -42,7 +42,7 @@ object Interaction2 extends Interaction2Interface:
       sliderValue: Signal[Year]
   ): Signal[Year] =
     val yearsRange = yearBounds(selectedLayer)
-    Signal(sliderValue().min(yearsRange().start).max(yearsRange().end))
+    Signal(sliderValue().min(yearsRange().end).max(yearsRange().start))
 
   /** @param selectedLayer
     *   The selected layer

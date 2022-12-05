@@ -9,11 +9,20 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.sksamuel.scrimage.implicits
+import com.sksamuel.scrimage.implicits.RichImmutableImage
+import com.sksamuel.scrimage.implicits.writer
+import com.sksamuel.scrimage.ImmutableImage
+
+import java.nio.file.Path
+import java.nio.file.Files
 
 object IOOperations {
 
-  // TODO: Implement wriing image to path
+  def writeTo(path: Path, image: ImmutableImage): Option[Path] =
+    print("Called")
+    if (!Files.exists(path.getParent))
+      Files.createDirectories(path.getParent)
+    Try(RichImmutableImage(image).output(path)).toOption
 
   def readData(path: String): Option[ParIterable[String]] =
     Await.result(
