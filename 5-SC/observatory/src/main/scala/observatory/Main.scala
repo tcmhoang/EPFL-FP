@@ -23,7 +23,7 @@ object Main extends App:
       System.getProperty("user.dir") + "\\winutils\\hadoop-3.3.1"
     )
 
-  val fjts = new ForkJoinTaskSupport(new ForkJoinPool(8))
+  val fjts = new ForkJoinTaskSupport(new ForkJoinPool(4))
 
   val all =
     readData(Constants.startYear to Constants.endYear, fjts)
@@ -36,7 +36,7 @@ object Main extends App:
       (yr, tile, data) =>
         IOOperations.writeTo(
           Paths.get(
-            s"target/temperatures/$yr/${tile.zoom}",
+            s"${Constants.assetPath}/${LayerName.Temperatures.id}/$yr/${tile.zoom}",
             s"${tile.x}-${tile.y}.png"
           ),
           Visualization2.visualizeGrid(
@@ -60,7 +60,7 @@ object Main extends App:
       (yr, tile, data) =>
         IOOperations.writeTo(
           Paths.get(
-            s"target/deviations/$yr/${tile.zoom}",
+            s"${Constants.assetPath}/${LayerName.Deviations.id}/$yr/${tile.zoom}",
             s"${tile.x}-${tile.y}.png"
           ),
           Visualization2.visualizeGrid(
